@@ -1,0 +1,149 @@
+PASOS PARA ENVIAR UN POST DE JSON A LA API LOCAL
+==================================================
+
+PASO 1: INICIAR EL SERVIDOR DE DJANGO
+--------------------------------------
+Abre una terminal en el directorio del proyecto y ejecuta:
+
+    python manage.py runserver
+
+El servidor estará disponible en: http://localhost:8000
+
+
+PASO 2: VERIFICAR QUE EL SERVIDOR ESTÁ CORRIENDO
+-------------------------------------------------
+Deberías ver un mensaje como:
+    "Starting development server at http://127.0.0.1:8000/"
+    "Quit the server with CTRL-BREAK."
+
+
+PASO 3: ELEGIR UNA HERRAMIENTA PARA ENVIAR EL POST
+---------------------------------------------------
+Tienes varias opciones:
+
+
+OPCIÓN A: USAR POSTMAN (Recomendado para principiantes)
+--------------------------------------------------------
+1. Descarga e instala Postman desde: https://www.postman.com/downloads/
+
+2. Abre Postman y crea una nueva petición:
+   - Click en "New" > "HTTP Request"
+
+3. Configura la petición:
+   - Método: Selecciona "POST" del menú desplegable
+   - URL: http://localhost:8000/app/prediccion/
+
+4. Configura los headers:
+   - Ve a la pestaña "Headers"
+   - Agrega: Key = "Content-Type", Value = "application/json"
+
+5. Agrega el body JSON:
+   - Ve a la pestaña "Body"
+   - Selecciona "raw" y "JSON" del menú desplegable
+   - Copia y pega el contenido del archivo "ejemplo_request.json"
+
+6. Click en el botón "Send"
+
+7. Verás la respuesta en la parte inferior con la predicción
+
+
+OPCIÓN B: USAR CURL (Desde la terminal)
+----------------------------------------
+Abre una SEGUNDA terminal (deja la primera con el servidor corriendo) y ejecuta:
+
+    curl -X POST http://localhost:8000/app/prediccion/ -H "Content-Type: application/json" -d @app/ejemplo_request.json
+
+O si prefieres escribir el JSON directamente:
+
+    curl -X POST http://localhost:8000/app/prediccion/ -H "Content-Type: application/json" -d "{\"phone_number\":\"+51987654321\",\"code_module\":\"AAA\",\"code_presentation\":\"2013J\",\"gender\":\"M\",\"region\":\"East Anglian Region\",\"highest_education\":\"HE Qualification\",\"imd_band\":\"90-100%\",\"age_band\":\"0-35\",\"disability\":\"N\",\"num_of_prev_attempts\":0,\"studied_credits\":240,\"days_enrolled_until_90\":150.5,\"unreg_before_90\":0,\"n_assess_submitted_early\":5.0,\"mean_score_early\":75.5,\"n_assess_not_submitted_early\":1.0,\"total_clicks_0_90\":1500.0,\"active_days_0_90\":45.0,\"dataplus\":25.0,\"dualpane\":10.0,\"externalquiz\":15.0,\"forumng\":250.0,\"glossary\":8.0,\"homepage\":150.0,\"htmlactivity\":30.0,\"oucollaborate\":12.0,\"oucontent\":400.0,\"ouelluminate\":5.0,\"ouwiki\":50.0,\"page\":20.0,\"questionnaire\":15.0,\"quiz\":100.0,\"repeatactivity\":8.0,\"resource\":25.0,\"sharedsubpage\":10.0,\"subpage\":75.0,\"url\":50.0}"
+
+
+OPCIÓN C: USAR EL SCRIPT DE PYTHON INCLUIDO
+--------------------------------------------
+Abre una SEGUNDA terminal y ejecuta:
+
+    python app/test_api.py
+
+Este script enviará automáticamente 5 peticiones de prueba con datos aleatorios.
+
+
+OPCIÓN D: USAR INSOMNIA
+------------------------
+Similar a Postman:
+1. Descarga Insomnia desde: https://insomnia.rest/download
+2. Crea una nueva petición POST
+3. URL: http://localhost:8000/app/prediccion/
+4. Body: JSON con el contenido de ejemplo_request.json
+
+
+PASO 4: VERIFICAR LA RESPUESTA
+-------------------------------
+Si todo funciona correctamente, recibirás una respuesta como:
+
+{
+  "success": true,
+  "message": "Predicción realizada exitosamente",
+  "data": {
+    "id": 1,
+    "phone_number": "+51987654321",
+    "prediction": "NO ABANDONA",
+    "dropout_probability": "25.50%",
+    "risk_level": "BAJO",
+    "prediction_time": "0.0023s"
+  }
+}
+
+
+IMPORTANTE: ESTRUCTURA DEL JSON
+--------------------------------
+El JSON debe incluir TODOS estos campos obligatorios:
+
+- phone_number: Número de teléfono (string)
+- code_module: Código del módulo (AAA, BBB, CCC, DDD, EEE, FFF, GGG)
+- code_presentation: Código de presentación (2013J, 2014J, 2013B, 2014B)
+- gender: Género (M o F)
+- region: Región (ver README_API.md para valores válidos)
+- highest_education: Nivel educativo (ver README_API.md)
+- imd_band: Banda IMD (90-100%, 80-90%, etc.)
+- age_band: Rango de edad (0-35, 35-55, 55<=)
+- disability: Discapacidad (Y o N)
+- num_of_prev_attempts: Número de intentos previos (número entero)
+- studied_credits: Créditos estudiados (número entero)
+- days_enrolled_until_90: Días matriculado hasta día 90 (número decimal)
+- unreg_before_90: Si se dio de baja antes del día 90 (0 o 1)
+- n_assess_submitted_early: Número de evaluaciones enviadas temprano (decimal)
+- mean_score_early: Puntuación promedio temprana (decimal)
+- n_assess_not_submitted_early: Evaluaciones no enviadas temprano (decimal)
+- total_clicks_0_90: Total de clics días 0-90 (decimal)
+- active_days_0_90: Días activos 0-90 (decimal)
+- Actividades (todos decimales): dataplus, dualpane, externalquiz, forumng,
+  glossary, homepage, htmlactivity, oucollaborate, oucontent, ouelluminate,
+  ouwiki, page, questionnaire, quiz, repeatactivity, resource, sharedsubpage,
+  subpage, url
+
+
+SOLUCIÓN DE PROBLEMAS
+----------------------
+1. Error de conexión:
+   - Verifica que el servidor Django esté corriendo
+   - Verifica que la URL sea http://localhost:8000/app/prediccion/
+
+2. Error 404:
+   - Verifica que la URL incluya /app/prediccion/ (con las barras)
+
+3. Error 400:
+   - Verifica que el JSON tenga todos los campos requeridos
+   - Verifica que el Content-Type sea application/json
+
+4. Error 500:
+   - Verifica que el archivo dropout_prediction_model.pkl exista
+   - Revisa los logs del servidor Django
+
+
+ENDPOINT ADICIONAL DISPONIBLE
+------------------------------
+Para obtener todas las predicciones realizadas:
+
+GET http://localhost:8000/app/predicciones/
+
+Puedes usar Postman, curl o tu navegador para este endpoint.
