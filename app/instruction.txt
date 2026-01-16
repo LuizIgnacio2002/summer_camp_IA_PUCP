@@ -1,0 +1,170 @@
+================================================================================
+                   INSTRUCCIONES PARA PROBAR LA API DE PREDICCIÓN
+                         DE ABANDONO ESTUDIANTIL
+================================================================================
+
+1. INICIAR EL SERVIDOR
+-----------------------
+   python manage.py runserver
+
+   El servidor estará disponible en: http://localhost:8000
+
+2. ENDPOINT DE PREDICCIÓN
+--------------------------
+   URL: http://localhost:8000/app/prediccion/
+   Método: POST
+   Content-Type: application/json
+
+3. EJEMPLO DE REQUEST COMPLETO
+-------------------------------
+   El siguiente JSON incluye TODOS los campos requeridos:
+
+   {
+     "phone_number": "+51987654321",
+     "code_module": "AAA",
+     "code_presentation": "2013J",
+     "gender": "M",
+     "region": "East Anglian Region",
+     "highest_education": "HE Qualification",
+     "imd_band": "90-100%",
+     "age_band": "0-35",
+     "disability": "N",
+     "num_of_prev_attempts": 0,
+     "studied_credits": 240,
+     "days_enrolled_until_90": 150.5,
+     "unreg_before_90": 0,
+     "n_assess_submitted_early": 5.0,
+     "mean_score_early": 75.5,
+     "n_assess_not_submitted_early": 1.0,
+     "total_clicks_0_90": 1500.0,
+     "active_days_0_90": 45.0,
+     "dataplus": 25.0,
+     "dualpane": 10.0,
+     "externalquiz": 15.0,
+     "forumng": 250.0,
+     "glossary": 8.0,
+     "homepage": 150.0,
+     "htmlactivity": 30.0,
+     "oucollaborate": 12.0,
+     "oucontent": 400.0,
+     "ouelluminate": 5.0,
+     "ouwiki": 50.0,
+     "page": 20.0,
+     "questionnaire": 15.0,
+     "quiz": 100.0,
+     "repeatactivity": 8.0,
+     "resource": 25.0,
+     "sharedsubpage": 10.0,
+     "subpage": 75.0,
+     "url": 50.0
+   }
+
+4. EJEMPLO DE REQUEST CON CAMPOS INCOMPLETOS
+---------------------------------------------
+   Si envías un JSON con campos faltantes, la API los generará 
+   automáticamente con valores aleatorios:
+
+   {
+     "phone_number": "+51999888777",
+     "gender": "F",
+     "age_band": "35-55"
+   }
+
+   Los campos no incluidos serán generados aleatoriamente y la respuesta
+   incluirá un campo "generated_fields" indicando cuáles fueron generados.
+
+5. PROBAR CON cURL
+-------------------
+   Ejemplo con todos los campos:
+   
+   curl -X POST http://localhost:8000/app/prediccion/ ^
+     -H "Content-Type: application/json" ^
+     -d "{\"phone_number\": \"+51987654321\", \"code_module\": \"AAA\", \"code_presentation\": \"2013J\", \"gender\": \"M\", \"region\": \"East Anglian Region\", \"highest_education\": \"HE Qualification\", \"imd_band\": \"90-100%%\", \"age_band\": \"0-35\", \"disability\": \"N\", \"num_of_prev_attempts\": 0, \"studied_credits\": 240, \"days_enrolled_until_90\": 150.5, \"unreg_before_90\": 0, \"n_assess_submitted_early\": 5.0, \"mean_score_early\": 75.5, \"n_assess_not_submitted_early\": 1.0, \"total_clicks_0_90\": 1500.0, \"active_days_0_90\": 45.0, \"dataplus\": 25.0, \"dualpane\": 10.0, \"externalquiz\": 15.0, \"forumng\": 250.0, \"glossary\": 8.0, \"homepage\": 150.0, \"htmlactivity\": 30.0, \"oucollaborate\": 12.0, \"oucontent\": 400.0, \"ouelluminate\": 5.0, \"ouwiki\": 50.0, \"page\": 20.0, \"questionnaire\": 15.0, \"quiz\": 100.0, \"repeatactivity\": 8.0, \"resource\": 25.0, \"sharedsubpage\": 10.0, \"subpage\": 75.0, \"url\": 50.0}"
+
+   Ejemplo con campos mínimos (se generarán aleatorios):
+   
+   curl -X POST http://localhost:8000/app/prediccion/ ^
+     -H "Content-Type: application/json" ^
+     -d "{\"phone_number\": \"+51999888777\"}"
+
+6. PROBAR CON PowerShell
+-------------------------
+   $body = @{
+       phone_number = "+51987654321"
+       gender = "M"
+       age_band = "0-35"
+   } | ConvertTo-Json
+
+   Invoke-RestMethod -Uri "http://localhost:8000/app/prediccion/" `
+                     -Method POST `
+                     -Body $body `
+                     -ContentType "application/json"
+
+7. PROBAR CON SCRIPT PYTHON
+----------------------------
+   python app/test_api.py
+
+   Este script genera 5 estudiantes aleatorios y envía las predicciones.
+
+8. RESPUESTA DE LA API
+-----------------------
+   En la consola del servidor verás:
+   
+   Si el estudiante es propenso a abandonar:
+   ==================================================
+   ⚠️  ESTUDIANTE PROPENSO A FUGA
+      Teléfono: +51987654321
+      Probabilidad: 78.50%
+      Nivel de riesgo: ALTO
+   ==================================================
+
+   Si el estudiante no presenta riesgo:
+   ==================================================
+   ✓  NO HAY PROBLEMA CON EL ESTUDIANTE
+      Teléfono: +51987654321
+      Probabilidad de abandono: 15.30%
+      Nivel de riesgo: BAJO
+   ==================================================
+
+   La respuesta JSON incluirá:
+   {
+     "success": true,
+     "message": "Predicción realizada exitosamente",
+     "data": {
+       "id": 1,
+       "phone_number": "+51987654321",
+       "prediction": "ABANDONA" o "NO ABANDONA",
+       "message": "estudiante propenso a fuga" o "no hay problema con el estudiante",
+       "dropout_probability": "78.50%",
+       "risk_level": "ALTO" | "MEDIO" | "BAJO",
+       "prediction_time": "0.0023s",
+       "generated_fields": ["campo1", "campo2"],  // Solo si se generaron aleatorios
+       "generated_fields_count": 2                // Solo si se generaron aleatorios
+     }
+   }
+
+9. NIVELES DE RIESGO
+---------------------
+   - BAJO: Probabilidad < 30%
+   - MEDIO: Probabilidad 30% - 70%
+   - ALTO: Probabilidad > 70%
+
+10. VALORES VÁLIDOS PARA CAMPOS CATEGÓRICOS
+--------------------------------------------
+    code_module: AAA, BBB, CCC, DDD, EEE, FFF, GGG
+    code_presentation: 2013J, 2014J, 2013B, 2014B
+    gender: M, F
+    region: East Anglian Region, Scotland, North Western Region, 
+            South East Region, West Midlands Region, London Region,
+            South Region, Yorkshire Region, East Midlands Region,
+            North Region, South West Region, Wales, Ireland
+    highest_education: HE Qualification, A Level or Equivalent,
+                       Lower Than A Level, Post Graduate Qualification,
+                       No Formal quals
+    imd_band: 90-100%, 80-90%, 70-80%, 60-70%, 50-60%, 
+              40-50%, 30-40%, 20-30%, 10-20%, 0-10%
+    age_band: 0-35, 35-55, 55<=
+    disability: Y, N
+    unreg_before_90: 0, 1
+
+================================================================================
