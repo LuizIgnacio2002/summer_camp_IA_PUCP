@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-jcd2ag&*uxry*ipsrba^4qauuim-w7u818w9*-z)0&rgzsh84o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -112,6 +112,24 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.0/howto/static-files/
+
+STATIC_URL = 'static/'
+
+#################################################################
+# for deployment
+import os
+##  keeep as staticfiles for jasmine
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # new
+STATICFILES_DIRS  = [os.path.join(BASE_DIR, 'static')]  # new
+#################################################################
+#################################################################
+# for images in models
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+#################################################################
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
