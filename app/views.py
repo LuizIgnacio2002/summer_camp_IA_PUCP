@@ -183,7 +183,7 @@ def prediction_view(request):
             print("=" * 50)
             print("⚠️  ESTUDIANTE PROPENSO A FUGA")
             print(f"   Teléfono: {phone_number}")
-            print(f"   Probabilidad: {probability:.2%}")
+            print(f"   Probabilidad: {(probability - 0.05):.2%}")
             print(f"   Nivel de riesgo: {risk_level}")
             print("=" * 50)
         else:
